@@ -1,0 +1,66 @@
+﻿@page "/certifications"
+@using BusinessLogic.Entities;
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+
+<h1 class="mb-5">Certifications</h1>
+
+<ul>
+    @if (_certifications == null)
+    {
+        <li>There were no certifications found.</li>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Manage Exams</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var certification in _certifications)
+            {
+                <tr>
+                    <td>@certification.Id</td>
+                    <td>@certification.Name</td>
+                    <td>
+                        <button @onclick="() => seeExams(certification.Id)" class="btn btn-info">Ver Exames</button>
+                        
+                        <button class="btn btn-success" @onclick="() => aprovados(certification.Id)">Ver Aprovados</button>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+</ul>
+
+@code {
+
+    private Certification[]? _certifications;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCertifications();
+    }
+
+    private async Task LoadCertifications()
+    {
+        _certifications = await HttpClient.
+            GetFromJsonAsync<Certification[]>("https://localhost:7199/api/Certification");
+    }
+
+    private void seeExams(long certificationId)
+    {
+        NavigationManager.NavigateTo($"/crudExams/{certificationId}");
+    }
+    
+    private void aprovados(long certificationId)
+    {
+        NavigationManager.NavigateTo($"/Aprovados/{certificationId}");
+    }
+}

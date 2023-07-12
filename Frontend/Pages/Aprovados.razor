@@ -1,0 +1,45 @@
+﻿@page "/Aprovados/{certificationId:int}"
+@using BusinessLogic.Entities
+@inject HttpClient HttpClient
+
+<h1 class="mb-5">Aprovados</h1>
+
+@if (_professionals == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var professional in _professionals)
+        {
+            <tr>
+                <td>@professional.Name</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Professional[] _professionals;
+
+    [Parameter]
+    public int CertificationId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCertifications();
+    }
+
+    private async Task LoadCertifications()
+    {
+        _professionals = await HttpClient.GetFromJsonAsync<Professional[]>($"https://localhost:7199/api/Professional/Aprovados?certificationId={CertificationId}");
+    }
+}

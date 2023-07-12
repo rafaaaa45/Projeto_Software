@@ -1,0 +1,47 @@
+﻿@page "/list-professionals"
+
+@using BusinessLogic.Entities;
+
+@inject HttpClient HttpClient
+
+<h1 class="mb-5">List all Professionals</h1>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Name</th>
+    </tr>
+    </thead>
+    <tbody>
+    @if (_professionals == null)
+    {
+        <tr><td>There were no professionals found.</td></tr>
+    }
+    else
+    {
+        @foreach( var professional in _professionals)
+        {
+            <tr>
+                <td>@professional.Name</td>
+            </tr>
+        }
+    }
+    </tbody>
+</table>
+
+@code {
+
+    private Professional[]? _professionals;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProfessionals();
+    }
+
+    private async Task LoadProfessionals()
+    {
+        _professionals = await HttpClient.
+            GetFromJsonAsync<Professional[]>("https://localhost:7199/api/Professional");
+    }
+
+}

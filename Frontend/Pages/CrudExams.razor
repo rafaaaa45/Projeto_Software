@@ -1,0 +1,93 @@
+﻿@page "/crudExams/{certificationId:int}"
+@using BusinessLogic.Entities;
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+
+<h1 class="mb-5">CRUD Exams</h1>
+
+<ul>
+    @if (_exams == null)
+    {
+        <li>There were no exams found.</li>
+    }
+    else
+    {
+        <button class="btn btn-success" onclick="@add">Adicionar Exame</button>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>CertificationId</th>
+                <th>Name</th>
+                <th>Minimum Grade</th>
+                <th>Manage Exam</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var exam in _exams)
+            {
+                <tr>
+                    <td>@exam.Id</td>
+                    <th>@exam.CertificationId</th>
+                    <td>@exam.Name</td>
+                    <td>@exam.MinimumGrade</td>
+                    <td>
+                        <button class="btn btn-warning" @onclick="() => edit(exam.Id)">Editar Exame</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteExam(exam.Id)">Apagar Exame</button>
+                        <button class="btn btn-info" @onclick="() => addAttempt(exam.Id)">Ver Tentativas</button>
+                        <button class="btn btn-success" @onclick="() => best(exam.Id)">Ver Melhor Nota</button>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+</ul>
+
+@code {
+
+    private Exam[]? _exams;
+    
+    [Parameter]
+    public int CertificationId { get; set; }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadExams();
+    }
+
+    private async Task LoadExams()
+    {
+        _exams = await HttpClient.GetFromJsonAsync<Exam[]>($"https://localhost:7199/api/Exam?certificationId={CertificationId}");
+    }
+    
+    private void add()
+    {
+        NavigationManager.NavigateTo("/crudExams/addExam");
+    }
+    
+    private void edit(long examId)
+    {
+        NavigationManager.NavigateTo($"/crudExams/editExam/{examId}");
+    }
+    
+    private void addAttempt(long examId)
+    {
+        NavigationManager.NavigateTo($"/crudExams/ExamsAttempt/{examId}");
+    }
+    
+    private void best(long examId)
+    {
+        NavigationManager.NavigateTo($"/crudExams/ExamsAttempt/MelhorNota/{examId}");
+    }
+
+    private async Task DeleteExam(long examId)
+    {
+        var response = await HttpClient.DeleteAsync($"https://localhost:7199/api/Exam/{examId}");
+
+        if (response.IsSuccessStatusCode)
+        {
+            await LoadExams();
+        }
+    }
+}

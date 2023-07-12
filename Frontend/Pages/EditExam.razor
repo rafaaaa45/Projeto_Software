@@ -1,0 +1,50 @@
+﻿@page "/crudExams/editExam/{examId:long}"
+@using BusinessLogic.Entities
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+
+<div class="container">
+    <h3>Edit Exam</h3>
+
+    <div class="form-group">
+        <label for="certificationId">Certification ID:</label>
+        <input id="certificationId" class="form-control" type="number" @bind="@Exam.CertificationId" />
+    </div>
+    <div class="form-group">
+        <label for="name">Name:</label>
+        <input id="name" class="form-control" type="text" @bind="@Exam.Name" />
+    </div>
+    <div class="form-group">
+        <label for="minimumGrade">Minimum Grade:</label>
+        <input id="minimumGrade" class="form-control" type="number" @bind="@Exam.MinimumGrade" />
+    </div>
+    <br/>
+    <button class="btn btn-primary" @onclick="Edit">Save Changes</button>
+</div>
+
+@code {
+    private Exam Exam { get; set; } = new Exam();
+    
+    [Parameter]
+    public long Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadExam();
+    }
+
+    private async Task LoadExam()
+    {
+        Exam = await HttpClient.GetFromJsonAsync<Exam>($"https://localhost:7199/api/Exam/{Id}");
+    }
+
+    private async Task Edit()
+    {
+        var response = await HttpClient.PutAsJsonAsync($"https://localhost:7199/api/Exam/{Id}", Exam);
+
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo($"/crudExams/{Exam.CertificationId}");
+        }
+    }
+}

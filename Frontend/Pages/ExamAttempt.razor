@@ -1,0 +1,64 @@
+﻿@page "/crudExams/ExamsAttempt/{examId:int}"
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+
+<PageTitle>Exam Attempts</PageTitle>
+
+<h1 class="mb-5">Exam Attempts</h1>
+
+<ul>
+    @if (_examsAttempts == null)
+    {
+        <li>There were no exams found.</li>
+    }
+    else
+    {
+        <button class="btn btn-success" onclick="@add">Adicionar Tentativa</button>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>ExamId</th>
+                <th>ProfessionalId</th>
+                <th>Attempt Name</th>
+                <th>Grade</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var examAttempt in _examsAttempts)
+            {
+                <tr>
+                    <td>@examAttempt.Id</td>
+                    <th>@examAttempt.ExamId</th>
+                    <td>@examAttempt.ProfessionalId</td>
+                    <td>@examAttempt.AttemptName</td>
+                    <td>@examAttempt.Grade</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+</ul>
+
+@code {
+
+    private BusinessLogic.Entities.ExamAttempt[]? _examsAttempts;
+
+    [Parameter]
+    public int ExamId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadExams();
+    }
+
+    private async Task LoadExams()
+    {
+        _examsAttempts = await HttpClient.GetFromJsonAsync<BusinessLogic.Entities.ExamAttempt[]>($"https://localhost:7199/api/ExamAttempt?examId={ExamId}");
+    }
+    
+    private void add()
+    {
+        NavigationManager.NavigateTo("/crudExams/ExamsAttempt/addAttempt");
+    }
+}

@@ -1,0 +1,46 @@
+﻿@page "/crudExams/addExam"
+@using BusinessLogic.Entities
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+
+<div class="container">
+    <h3>Add Exam</h3>
+
+    <div class="form-group">
+        <label for="certificationId">Certification ID:</label>
+        <input id="certificationId" class="form-control" type="number" @bind="@CertificationId" />
+    </div>
+    <div class="form-group">
+        <label for="name">Name:</label>
+        <input id="name" class="form-control" type="text" @bind="@Name" />
+    </div>
+    <div class="form-group">
+        <label for="minimumGrade">Minimum Grade:</label>
+        <input id="minimumGrade" class="form-control" type="number" @bind="@MinimumGrade" />
+    </div>
+    <br/>
+    <button class="btn btn-primary" @onclick="add">Add Exam</button>
+</div>
+
+@code {
+    private int CertificationId { get; set; }
+    private string Name { get; set; }
+    private int MinimumGrade { get; set; }
+
+    private async Task add()
+    {
+        Exam newExam = new Exam
+        {
+            CertificationId = CertificationId,
+            Name = Name,
+            MinimumGrade = MinimumGrade
+        };
+
+        var response = await HttpClient.PostAsJsonAsync("https://localhost:7199/api/Exam", newExam);
+
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo($"/crudExams/{CertificationId}");
+        }
+    }
+}
